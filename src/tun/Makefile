@@ -26,7 +26,7 @@ CFLAGS = -Wall -mkernel -force_cpusubtype_ALL \
 	-DKERNEL -D__APPLE__ -DKERNEL_PRIVATE -DTUNTAP_VERSION=\"$(TUNTAP_VERSION)\" \
 	-DTUN_KEXT_VERSION=\"$(TUN_KEXT_VERSION)\"
 CCFLAGS = $(CFLAGS)
-LDFLAGS = -Wall -mkernel -nostdlib -r -lcc_kext -arch ppc -Xlinker -kext
+LDFLAGS = -Wall -mkernel -nostdlib -r -lcc_kext -arch ppc
 
 CCP = g++
 CC = gcc
