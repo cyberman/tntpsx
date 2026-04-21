@@ -30,8 +30,8 @@ also is a header called `tun_ioctls.h` in the source package that you can use)
 Set the int argument to one if you want to have AF prepending, use 0 if you want
 to switch it off.
 
-`#define TUNSIFHEAD  _IOW('t', 96, int)`
-`#define TUNGIFHEAD  _IOR('t', 97, int)`
+- `#define TUNSIFHEAD  _IOW('t', 96, int)`
+- `#define TUNGIFHEAD  _IOR('t', 97, int)`
 
 Prepending mode is off by default. Currently it is not recommended to switch the
 mode while packets are in flight on the device.
@@ -63,9 +63,9 @@ The installer packages for OS X currently don't have support for uninstall as
 the installer doesn't provide it. Remove the following directories if you want
 to completely remove the files installed:
 
-`/Library/Extensions/tap.kext`
-`/Library/Extensions/tun.kext`
-`/Library/StartupItems/tap`
-`/Library/StartupItems/tun`
+- `/Library/Extensions/tap.kext`
+- `/Library/Extensions/tun.kext`
+- `/Library/StartupItems/tap`
+- `/Library/StartupItems/tun`
 
 Unload the the kernel extensions or reboot and you're done.
