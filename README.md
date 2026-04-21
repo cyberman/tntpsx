@@ -13,6 +13,14 @@ This repository is not just a historical mirror. It is an active Leopard/PPC rec
 
 `leopard-ppc-tuntap-v1`
 
+## Historical Basis
+
+`tntpsx` is based on the historical `tuntaposx` Leopard-era code line, with the current repository aligned to the `20090913` generation as its practical base.
+
+See:
+
+- `docs/BASIS.md`
+
 ## Project Status
 
 Current status: **Leopard/PPC build path restored and runtime verified**

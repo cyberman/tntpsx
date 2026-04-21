@@ -101,3 +101,6 @@ If you are working on the current Leopard/PPC line, work here first:
 - `docs/`
 
 Treat `vendor/tuntap/` as reference material.
+
+For the concrete historical basis of the active recovery line, see `docs/BASIS.md`.
+
