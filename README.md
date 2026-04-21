@@ -1,71 +1,145 @@
-# tun/tap driver for Mac OS X
+# tntpsx
 
-This is an experimental IP tunnel/ethertap driver for Mac OS X/Darwin. It
-provides `/dev/tunX` and `/dev/tapX` devices. The maximum number of devices can be
-configured at compile time, it is currently set to 16. That should be enough in
-most cases.
+`tntpsx` restores native TUN/TAP kernel extensions for Mac OS X Leopard 10.5.8 on PowerPC.
 
-The driver ships as two kernel extensions, one for tap and one for tun. They are
-located in `/Library/Extensions` and can also be loaded and unloaded by hand. If
-you install the startup item, the system will load them automatically at
-startup (tun and tap startup items get installed in `/Library/StartupItems`).
+This repository is not just a historical mirror. It is an active Leopard/PPC recovery line based on the old `tuntaposx` code base, with a verified build and runtime milestone:
 
-## Operation & Programming notes
+- `tap.kext` builds on Leopard/PPC
+- `tun.kext` builds on Leopard/PPC
+- both kexts load successfully
+- `/dev/tap*` and `/dev/tun*` device nodes are created
+- opening the devices creates working `tapX` and `tunX` interfaces
+- runtime verification was completed and tagged as:
 
-tapX are ethertap devices which provide an interface to the kernel's ethernet
-layer. Packets can be read from and written to the `/dev/tapX` character devices
-one at a time (same name as the interface that shows up in `ifconfig`). 
+`leopard-ppc-tuntap-v1`
 
-tunX are IP tunnel devices. These can be used to exchange IP packets with the
-kernel. You will get single packets for each `read()` and should `write()` packets
-one at a time to `/dev/tunX`.
+## Project Status
 
-There are some special `ioctls` with the tun devices that allow you to have them
-prepend the address family of the packet when reading it from `/dev/tunX`. Using
-this mode the driver also expects you put this 4-byte address family field
-(network byte order) in front of the packets you write to `/dev/tunX`.
+Current status: **Leopard/PPC build path restored and runtime verified**
 
-Here are the ioctls to setup up address prepending mode (for convenience there
-also is a header called `tun_ioctls.h` in the source package that you can use)
-Set the int argument to one if you want to have AF prepending, use 0 if you want
-to switch it off.
+Verified environment:
 
-- `#define TUNSIFHEAD  _IOW('t', 96, int)`
-- `#define TUNGIFHEAD  _IOR('t', 97, int)`
+- Mac OS X Leopard 10.5.8
+- PowerPC
+- Xcode 3 legacy build flow
+- kernel extensions loaded manually via `kextload`
 
-Prepending mode is off by default. Currently it is not recommended to switch the
-mode while packets are in flight on the device.
+This project currently focuses on:
 
-The character devices are always visible in the filesystem as `/dev/tunX` and
-`/dev/tapX`. The number of available character devices is a compile time constant
-and is currently fixed to 16. Each character devices is associated with a
-network interface of the same name. The network interfaces are only created when
-the corresponding character device is opened by a program and will be removed
-when the character device is closed.
+- restoring a stable Leopard/PPC build path
+- documenting the repaired toolchain and runtime path
+- preserving a reproducible native TUN/TAP foundation for further networking work
 
-The character devices currently provide a pretty minimal interface. Whole
-packets are read and written using a singe read/write call. File descriptors
-opened on the devices can also be `select()`ed and support O_NONBLOCK.
-Asynchronous i/o and some `ioctls` are currently unimplemented, but implementing
-them shouldn't be very hard.
+## What This Repo Provides
 
-There is another limitation imposed by the Darwin 8 kernel. It concerns the
-`poll()` system call; Darwin currently does *not* support that for (character)
-devices. Use `select()` instead.
+This repo builds two kernel extensions:
 
-The interfaces can be configured using `ifconfig`, the tap devices also support
-setting the MAC address to be used. Both tun and tap should be ready for IPv6.
-Just setup addresses and routing as you would do with other interfaces.
+- `tap.kext`  
+  Ethernet-style virtual network interface (`/dev/tapX`)
 
-## Uninstalling
+- `tun.kext`  
+  IP tunnel-style virtual network interface (`/dev/tunX`)
 
-The installer packages for OS X currently don't have support for uninstall as
-the installer doesn't provide it. Remove the following directories if you want
-to completely remove the files installed:
+These are infrastructure components. They are not a VPN by themselves. They provide the virtual network devices that later userspace tools can build on.
 
-- `/Library/Extensions/tap.kext`
-- `/Library/Extensions/tun.kext`
-- `/Library/StartupItems/tap`
-- `/Library/StartupItems/tun`
+## Verified Runtime Result
 
-Unload the the kernel extensions or reboot and you're done.
+The current milestone has been verified with the following outcomes:
+
+- `kextload` succeeds for both `tap.kext` and `tun.kext`
+- `kextstat` shows both loaded
+- `/dev/tap0` ... `/dev/tap15` exist
+- `/dev/tun0` ... `/dev/tun15` exist
+- opening `/dev/tap0` creates `tap0`
+- opening `/dev/tun0` creates `tun0`
+- `tap0` and `tun0` can be configured with `ifconfig` when run with sufficient privileges
+
+## Quick Start
+
+### Build
+
+Open the legacy Xcode project:
+
+` tntpsx.xcodeproj `
+
+or build from the shell:
+
+```sh
+make
+````
+
+Expected build products in the repository root:
+
+- `tap.kext`
+    
+- `tun.kext`
+    
+
+### Install
+
+```sh
+sudo cp -R tap.kext /Library/Extensions/
+sudo cp -R tun.kext /Library/Extensions/
+sudo chown -R root:wheel /Library/Extensions/tap.kext /Library/Extensions/tun.kext
+sudo chmod -R 755 /Library/Extensions/tap.kext /Library/Extensions/tun.kext
+```
+
+### Load
+
+```sh
+sudo kextload /Library/Extensions/tap.kext
+sudo kextload /Library/Extensions/tun.kext
+```
+
+### Check
+
+```sh
+kextstat | grep -i -E 'tap|tun'
+ls -la /dev/tap* /dev/tun*
+```
+
+## Repository Layout
+
+See:
+
+- `docs/BUILD.md`
+    
+- `docs/RUNTIME_TEST.md`
+    
+- `docs/REPO_LAYOUT.md`
+    
+- `docs/KNOWN_ISSUES.md`
+    
+
+## Current Scope
+
+This repository currently documents and preserves:
+
+- the repaired Leopard/PPC build path
+    
+- the restored runtime path for native TUN/TAP devices
+    
+- the verified milestone tag `leopard-ppc-tuntap-v1`
+    
+
+It does **not** yet provide:
+
+- a polished installer flow re-verified on Leopard/PPC
+    
+- automated permissions handling for non-root users
+    
+- a userspace networking utility using `/dev/tunX` or `/dev/tapX`
+    
+
+## Historical Note
+
+The upstream `tuntaposx` project was abandoned long ago. This repository keeps a vendor copy for historical reference, but the active build root is the repository top level, not `vendor/tuntap`.
+
+## Milestone Tag
+
+The first fully verified Leopard/PPC milestone is tagged as:
+
+`leopard-ppc-tuntap-v1`
+
+---
+
