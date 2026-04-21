@@ -75,7 +75,7 @@ tuntap_if_output(ifnet_t ifp, mbuf_t m)
 }
 
 errno_t
-tuntap_if_ioctl(ifnet_t ifp, long unsigned int cmd, void *arg)
+tuntap_if_ioctl(ifnet_t ifp, u_int32_t cmd, void *arg)
 {
 	if (ifp != NULL) {
 		tuntap_interface *ttif = (tuntap_interface *) ifnet_softc(ifp);
