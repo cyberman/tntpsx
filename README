@@ -1,6 +1,4 @@
-
-tun/tap driver for Mac OS X
-===========================
+# tun/tap driver for Mac OS X
 
 This is an experimental IP tunnel/ethertap driver for Mac OS X/Darwin. It
 provides /dev/tunX and /dev/tapX devices. The maximum number of devices can be
@@ -12,8 +10,7 @@ located in /Library/Extensions and can also be loaded and unloaded by hand. If
 you install the startup item, the system will load them automatically at
 startup (tun and tap startup items get installed in /Library/StartupItems).
 
-Operation & Programming notes
-=============================
+## Operation & Programming notes
 
 tapX are ethertap devices which provide an interface to the kernel's ethernet
 layer. Packets can be read from and written to the /dev/tapX character devices
@@ -61,16 +58,7 @@ The interfaces can be configured using ifconfig, the tap devices also support
 setting the MAC address to be used. Both tun and tap should be ready for IPv6.
 Just setup addresses and routing as you would do with other interfaces.
 
-Please contact me if you find any bugs or have suggestions.
-
-Enjoy!
-
-Mattias
-<mattias.nissler@gmx.de>
-
-
-Uninstalling
-============
+## Uninstalling
 
 The installer packages for OS X currently don't have support for uninstall as
 the installer doesn't provide it. Remove the following directories if you want
@@ -82,4 +70,3 @@ to completely remove the files installed:
 /Library/StartupItems/tun
 
 Unload the the kernel extensions or reboot and you're done.
-
