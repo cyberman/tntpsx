@@ -23,7 +23,7 @@ Verified milestone tags:
 
 ## Historical Basis
 
-`tntpsx` is based on the historical `tuntaposx` Leopard-era code line, with the current repository aligned to the `20090913` generation as its practical base.
+`tntpsx` is based on the historical `tuntaposx` Leopard-era code line. The current product version is `0.1.0`, while the historical upstream base remains aligned to the `20090913` generation.
 
 See:
 

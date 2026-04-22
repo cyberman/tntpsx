@@ -1,5 +1,11 @@
-# Lets have a version, at last!
-TUNTAP_VERSION = 20090913
+# Historical upstream base
+UPSTREAM_BASE = 20090913
+
+# Current recovery-line product version
+TNTPSX_VERSION = 0.1.0
+
+# Legacy compatibility alias
+TUNTAP_VERSION = $(UPSTREAM_BASE)
 
 # BASE install directory
 BASE=
@@ -16,9 +22,9 @@ installsrc:
 
 pkg: all
 	/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker \
-		-d pkg/tuntap.pmdoc -o tuntap_$(TUNTAP_VERSION).pkg -v
-	tar czf tuntap_$(TUNTAP_VERSION).tar.gz \
-		README.installer README.md tuntap_$(TUNTAP_VERSION).pkg
+		-d pkg/tuntap.pmdoc -o tntpsx_$(TNTPSX_VERSION).pkg -v
+	tar czf tntpsx_$(TNTPSX_VERSION).tar.gz \
+		README.installer README.md tntpsx_$(TNTPSX_VERSION).pkg
 
 # Install targets
 # They are provided for the gentoo ebuild, but should work just fine for other people as well.
