@@ -24,3 +24,15 @@
 - opening the devices creates working `tapX` and `tunX` interfaces
 - runtime interface configuration works with appropriate privilege
 
+## Verified Milestones
+
+### leopard-ppc-tuntap-v1
+- Leopard/PPC build restored
+- runtime verified for `tap.kext` and `tun.kext`
+
+### leopard-ppc-installer-roundtrip-v1
+- installer package built successfully
+- package install verified
+- uninstall script verified
+- reinstall verified
+- startup item resources carried through package installation

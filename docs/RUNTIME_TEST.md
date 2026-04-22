@@ -218,5 +218,19 @@ This milestone is tagged as:
 
 `leopard-ppc-tuntap-v1`
 
+## Roundtrip Verification
+
+A full installer roundtrip was verified:
+
+- install from package
+- runtime validation
+- uninstall via `scripts/uninstall-tntpsx.sh`
+- clean-state verification
+- reinstall from package
+- post-reinstall verification
+
+Milestone tag:
+
+`leopard-ppc-installer-roundtrip-v1`
 
 ---
