@@ -1,12 +1,23 @@
+tntpsx Installer
 
-tun/tap driver installer
-========================
+tntpsx restores native TUN/TAP kernel extensions for Mac OS X Leopard 10.5.8 on PowerPC.
 
-This binary distribution contains a single installer package. Just open it to
-install TunTap on your computer. The installer allows to customize which parts
-of the package are installed in case you only need either tun or tap.
+This installer provides:
 
-Unless you really know what you are doing, you should also install the startup
-item. If you do not install it, you will have to load the kernel extensions
-manually after each reboot using kextload.
+- tap.kext
+- tun.kext
+- startup items for loading the kernel extensions at boot
 
+Historical basis:
+This recovery line is based on the historical tuntaposx 20090913-era code line.
+
+Current recovery-line work includes:
+- Leopard/PPC build restoration
+- runtime verification
+- installer roundtrip verification
+- repository modernization
+- documentation and cleanup
+
+For license and attribution details, see:
+- LICENSE
+- NOTICE
