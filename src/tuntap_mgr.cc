@@ -147,7 +147,7 @@ tuntap_manager::initialize(unsigned int count, char *family)
 	/* register the new family in the mgr switch */
 	mgr_map[dev_major] = this;
 
-	log(LOG_INFO, "%s kernel extension version %s <mattias.nissler@gmx.de>\n",
+	log(LOG_INFO, "%s kernel extension version %s (tntpsx)\n",
 			family, TUNTAP_VERSION);
 
 	return true;
