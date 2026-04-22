@@ -1,0 +1,15 @@
+tntpsx is based on the historical tuntaposx code line.
+
+Original copyright and license notices remain with their respective authors
+as stated in the source tree and in the LICENSE file.
+
+This repository includes additional Leopard/PPC recovery work, packaging
+adjustments, installer verification, uninstall tooling, documentation, and
+repository maintenance for the current recovery line.
+
+Current recovery-line maintenance and integration work:
+Andreas W. Just
+andy@quietcode.org
+
+This NOTICE file does not replace, modify, or remove any original upstream
+copyright or license notice.
