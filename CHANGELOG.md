@@ -33,6 +33,9 @@
 - reinstall succeeds
 - startup item resources are preserved through package installation
 - `tntpsx 0.1.0` package naming and release identity verified on the Leopard/PPC recovery line
+- TUN data path verified with an outbound ICMP packet read from `/dev/tun0`
+- TAP data path verified with an ARP broadcast frame read from `/dev/tap0`
+- Full userspace smoke tests verified for both `tun` and `tap` after package reinstall
 
 ## Verified Milestones
 
@@ -47,3 +50,10 @@
 - reinstall verified
 - startup item resources carried through package installation
 - full install/uninstall/reinstall roundtrip verified
+
+### tntpsx-0.1.0-rc1
+- release candidate status established for Leopard/PPC
+- TUN packet data path verified
+- TAP frame data path verified
+- build, packaging, install, uninstall, reinstall, and runtime data path all verified together
+

@@ -83,7 +83,7 @@ This is intentional, but future contributors must avoid editing the wrong tree b
 
 ## 10. PackageMaker StartupItems Permission Warning
 
-On the verified Leopard/PPC target, PackageMaker may emit non-fatal permission warnings during the "Applying Recommended Permissions" phase for the StartupItems package roots:
+On the verified Leopard/PPC target, PackageMaker may emit non-fatal permission warnings during the "Applying Recommended Permissions" phase for:
 
 - `/Library/StartupItems/tap`
 - `/Library/StartupItems/tun`

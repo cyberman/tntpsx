@@ -233,4 +233,109 @@ Milestone tag:
 
 `leopard-ppc-installer-roundtrip-v1`
 
+## 10. Data-Path Smoke Tests
+
+After build, install, uninstall, reinstall, and namespace verification, a final data-path smoke test was performed for both `tun` and `tap`.
+
+### TUN data-path smoke test
+
+A userspace reader opened `/dev/tun0`, the interface was configured, and a single ICMP echo request was triggered toward the peer address.
+
+Test flow:
+
+```sh id="q8d3tz"
+./tools/test_tun.sh
+````
+
+Observed result:
+
+- `/dev/tun0` opened successfully
+    
+- `tun0` was configured successfully
+    
+- an 84-byte packet was read from the device
+    
+- the packet began with `45 00`, indicating an IPv4 header
+    
+- the payload included an ICMP echo request
+    
+
+Observed hex prefix:
+
+```text
+45 00 00 54 ...
+```
+
+Conclusion:
+
+- kernel-to-userspace packet delivery through `tun0` is working
+    
+- the TUN data path is functionally verified on Leopard/PPC
+    
+
+### TAP data-path smoke test
+
+A userspace reader opened `/dev/tap0`, the interface was configured, and traffic was triggered toward a non-present host to provoke layer-2 activity.
+
+Test flow:
+
+```sh
+./tools/test_tap.sh
+```
+
+Observed result:
+
+- `/dev/tap0` opened successfully
+    
+- `tap0` was configured successfully
+    
+- a 42-byte frame was read from the device
+    
+- the frame began with broadcast destination MAC `ff ff ff ff ff ff`
+    
+- EtherType `08 06` indicated ARP traffic
+    
+
+Observed hex prefix:
+
+```text
+ff ff ff ff ff ff ... 08 06 ...
+```
+
+Conclusion:
+
+- kernel-to-userspace frame delivery through `tap0` is working
+    
+- the TAP data path is functionally verified on Leopard/PPC
+    
+
+## Final Runtime Conclusion
+
+The Leopard/PPC recovery line is now verified across:
+
+- build
+    
+- package build
+    
+- package install
+    
+- uninstall
+    
+- reinstall
+    
+- kext loading
+    
+- device node creation
+    
+- interface creation
+    
+- interface configuration
+    
+- TUN packet data path
+    
+- TAP frame data path
+    
+
+This establishes `tntpsx` as a functionally verified Leopard/PPC TUN/TAP recovery line.
+
 ---
