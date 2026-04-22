@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>@@CFBUNDLEEXECUTABLE@@</string>
 	<key>CFBundleIdentifier</key>
-	<string>@@CFBUNDLEIDENTIFIER@@</string>
+	<string>org.tntpsx.tap</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
