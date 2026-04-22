@@ -23,7 +23,9 @@ Verified milestone tags:
 
 ## Historical Basis
 
-`tntpsx` is based on the historical `tuntaposx` Leopard-era code line. The current product version is `0.1.0`, while the historical upstream base remains aligned to the `20090913` generation.
+`tntpsx` is based on the historical `tuntaposx` Leopard-era code line, with the current repository aligned to the `20090913` generation as its practical base.
+
+The current recovery-line product version is `0.1.0`.
 
 See:
 
@@ -162,6 +164,7 @@ It does **not** yet provide:
 - automated permissions handling for non-root users
 - a userspace networking utility using `/dev/tunX` or `/dev/tapX`
 
+The current package/release identity for the active recovery line is `tntpsx 0.1.0`.
 ## Historical Note
 
 The upstream `tuntaposx` project was abandoned long ago. This repository keeps a vendor copy for historical reference, but the active build root is the repository top level, not `vendor/tuntap`.
@@ -170,6 +173,11 @@ The upstream `tuntaposx` project was abandoned long ago. This repository keeps a
 
 - `leopard-ppc-tuntap-v1`
 - `leopard-ppc-installer-roundtrip-v1`
+- `org-tntpsx-identity-v1`
+
+Current product version:
+
+`0.1.0`
 
 ---
 

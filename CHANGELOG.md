@@ -10,10 +10,10 @@
 - Cleaned repository handling for legacy Xcode artifacts
 - Normalized file modes across the repository
 - Clarified active build root vs archival vendor tree
-- Separated historical upstream base from current product version
-- Renamed package output to `tntpsx_0.1.0.pkg`
-- Updated installer identity and metadata to `tntpsx`
-- Removed historical donation/contact presentation from the active installer flow
+- Separated historical upstream base from the current recovery-line product version
+- Defined `0.1.0` as the current `tntpsx` product version
+- Renamed package output from historical `tuntap_*` naming to `tntpsx_0.1.0.*`
+- Continued aligning installer and package identity with the `tntpsx` product name
 
 ### Fixed
 - Leopard/PPC ioctl callback signature mismatch in `tuntap_if_ioctl`
@@ -32,6 +32,7 @@
 - uninstall via `scripts/uninstall-tntpsx.sh` succeeds
 - reinstall succeeds
 - startup item resources are preserved through package installation
+- `tntpsx 0.1.0` package naming and release identity verified on the Leopard/PPC recovery line
 
 ## Verified Milestones
 
