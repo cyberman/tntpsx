@@ -35,7 +35,7 @@ The repository contains legacy startup item material, but the current milestone 
 
 Boot-time startup behaviour still needs a fresh verification pass.
 
-## Startup Item Localization on Leopard
+## 5. Startup Item Localization on Leopard
 
 On the verified Mac OS X Leopard 10.5.8 PPC target, `/etc/rc.common` defines:
 
@@ -45,11 +45,11 @@ This means startup item `ConsoleMessage` output is not localized through `Resour
 
 As a result, localized startup item resource folders may still be installed and preserved, but the startup console messages themselves remain effectively English unless a custom localization layer is introduced.
 
-## 5. Installer Package Path Not Yet Re-verified
+## 6. Installer Package Path Not Yet Re-verified
 
 Legacy packaging material is present in `pkg/`, but the current milestone did not yet re-verify the full installer/package workflow on Leopard/PPC.
 
-## 6. Xcode Legacy Noise
+## 7. Xcode Legacy Noise
 
 Legacy Xcode workflows may generate per-user and build-index artifacts.
 
@@ -60,7 +60,7 @@ Ignored examples:
 - `build/`
 - `*.pbxuser`
 
-## 7. SMB/CIFS Working Copies Need Care
+## 8. SMB/CIFS Working Copies Need Care
 
 When working on the repository over an SMB/CIFS-mounted Leopard volume, file mode noise can appear.
 
@@ -70,7 +70,7 @@ Repository-local mitigation used during recovery:
 git config core.fileMode false
 ````
 
-## 8. Archival Tree vs Active Tree
+## 9. Archival Tree vs Active Tree
 
 The repository contains both:
 
@@ -80,5 +80,26 @@ The repository contains both:
     
 
 This is intentional, but future contributors must avoid editing the wrong tree by accident.
+
+## 10. PackageMaker StartupItems Permission Warning
+
+On the verified Leopard/PPC target, PackageMaker may emit non-fatal permission warnings during the "Applying Recommended Permissions" phase for the StartupItems package roots:
+
+- `/Library/StartupItems/tap`
+- `/Library/StartupItems/tun`
+
+These warnings persisted even after the source tree permissions were normalized.
+
+On the verified target, they did not prevent:
+
+- package build
+- package install
+- uninstall
+- reinstall
+- kext loading
+- device creation
+- runtime operation
+
+This is currently treated as a legacy PackageMaker quirk, not as a functional packaging failure.
 
 ---
