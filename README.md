@@ -2,16 +2,24 @@
 
 `tntpsx` restores native TUN/TAP kernel extensions for Mac OS X Leopard 10.5.8 on PowerPC.
 
-This repository is not just a historical mirror. It is an active Leopard/PPC recovery line based on the old `tuntaposx` code base, with a verified build and runtime milestone:
+This repository is not just a historical mirror. It is an active Leopard/PPC recovery line based on the old `tuntaposx` code base.
+
+The current verified recovery status includes:
 
 - `tap.kext` builds on Leopard/PPC
 - `tun.kext` builds on Leopard/PPC
 - both kexts load successfully
 - `/dev/tap*` and `/dev/tun*` device nodes are created
 - opening the devices creates working `tapX` and `tunX` interfaces
-- runtime verification was completed and tagged as:
+- package installation works on Leopard/PPC
+- uninstall works cleanly
+- reinstall works cleanly
+- startup item resources are carried correctly through package installation
 
-`leopard-ppc-tuntap-v1`
+Verified milestone tags:
+
+- `leopard-ppc-tuntap-v1`
+- `leopard-ppc-installer-roundtrip-v1`
 
 ## Historical Basis
 
@@ -23,7 +31,7 @@ See:
 
 ## Project Status
 
-Current status: **Leopard/PPC build path restored and runtime verified**
+Current status: **Leopard/PPC build path, runtime path, and installer roundtrip verified**
 
 Verified environment:
 
@@ -63,6 +71,22 @@ The current milestone has been verified with the following outcomes:
 - opening `/dev/tap0` creates `tap0`
 - opening `/dev/tun0` creates `tun0`
 - `tap0` and `tun0` can be configured with `ifconfig` when run with sufficient privileges
+
+## Verified Installer Roundtrip
+
+A full installer lifecycle has been verified on Leopard/PPC:
+
+- package build via PackageMaker succeeds
+- package install succeeds
+- installed kexts appear in `/Library/Extensions`
+- installed startup items appear in `/Library/StartupItems`
+- startup item resource trees are preserved during installation
+- uninstall via `scripts/uninstall-tntpsx.sh` removes installed components cleanly
+- reinstall from package restores the full working state
+
+Verified milestone tag:
+
+`leopard-ppc-installer-roundtrip-v1`
 
 ## Quick Start
 
@@ -134,22 +158,18 @@ This repository currently documents and preserves:
 
 It does **not** yet provide:
 
-- a polished installer flow re-verified on Leopard/PPC
-    
+- a fully polished installer identity and presentation layer
 - automated permissions handling for non-root users
-    
 - a userspace networking utility using `/dev/tunX` or `/dev/tapX`
-    
 
 ## Historical Note
 
 The upstream `tuntaposx` project was abandoned long ago. This repository keeps a vendor copy for historical reference, but the active build root is the repository top level, not `vendor/tuntap`.
 
-## Milestone Tag
+## Milestone Tags
 
-The first fully verified Leopard/PPC milestone is tagged as:
-
-`leopard-ppc-tuntap-v1`
+- `leopard-ppc-tuntap-v1`
+- `leopard-ppc-installer-roundtrip-v1`
 
 ---
 

@@ -23,6 +23,11 @@
 - `/dev/tap*` and `/dev/tun*` device nodes are created
 - opening the devices creates working `tapX` and `tunX` interfaces
 - runtime interface configuration works with appropriate privilege
+- PackageMaker package build succeeds on Leopard/PPC
+- package install succeeds
+- uninstall via `scripts/uninstall-tntpsx.sh` succeeds
+- reinstall succeeds
+- startup item resources are preserved through package installation
 
 ## Verified Milestones
 
@@ -36,3 +41,4 @@
 - uninstall script verified
 - reinstall verified
 - startup item resources carried through package installation
+- full install/uninstall/reinstall roundtrip verified
