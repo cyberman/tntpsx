@@ -18,7 +18,7 @@ pkg: all
 	/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker \
 		-d pkg/tuntap.pmdoc -o tuntap_$(TUNTAP_VERSION).pkg -v
 	tar czf tuntap_$(TUNTAP_VERSION).tar.gz \
-		README.installer README tuntap_$(TUNTAP_VERSION).pkg
+		README.installer README.md tuntap_$(TUNTAP_VERSION).pkg
 
 # Install targets
 # They are provided for the gentoo ebuild, but should work just fine for other people as well.
