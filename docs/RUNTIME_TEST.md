@@ -212,6 +212,8 @@ Confirmed working:
 - interface configuration via `ifconfig`
     
 
+Leopard selects localized resources from the user's ordered AppleLanguages preference list and uses the first matching .lproj directory.
+
 This milestone is tagged as:
 
 `leopard-ppc-tuntap-v1`
