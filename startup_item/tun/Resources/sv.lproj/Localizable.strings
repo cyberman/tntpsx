@@ -3,9 +3,8 @@
 <plist version="0.9">
 <dict>
 	<key>ip tunnel device kernel extension</key>
-	<string>ip tunnel kernel extension</string>
+	<string>kärnutökning för IP-tunnel</string>
 	<key>Initializing tun devices</key>
-	<string>Initializing tun devices</string>
+	<string>Initierar TUN-enheter</string>
 </dict>
 </plist>
-

@@ -3,9 +3,8 @@
 <plist version="0.9">
 <dict>
 	<key>ethertap device kernel extension</key>
-	<string>ethertap kernel extension</string>
+	<string>расширение ядра ethertap</string>
 	<key>Initializing tap devices</key>
-	<string>Initializing tap devices</string>
+	<string>Инициализация устройств TAP</string>
 </dict>
 </plist>
-
