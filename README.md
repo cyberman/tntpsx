@@ -38,6 +38,8 @@ This project currently focuses on:
 - documenting the repaired toolchain and runtime path
 - preserving a reproducible native TUN/TAP foundation for further networking work
 
+Startup item resource localization is preserved in the repository, but Leopard 10.5.8 PPC does not localize `ConsoleMessage` output through `/etc/rc.common` on the verified target.
+
 ## What This Repo Provides
 
 This repo builds two kernel extensions:

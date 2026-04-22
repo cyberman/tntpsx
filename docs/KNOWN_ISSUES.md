@@ -35,6 +35,16 @@ The repository contains legacy startup item material, but the current milestone 
 
 Boot-time startup behaviour still needs a fresh verification pass.
 
+## Startup Item Localization on Leopard
+
+On the verified Mac OS X Leopard 10.5.8 PPC target, `/etc/rc.common` defines:
+
+`alias ConsoleMessage=echo`
+
+This means startup item `ConsoleMessage` output is not localized through `Resources/*.lproj/Localizable.strings` on this target.
+
+As a result, localized startup item resource folders may still be installed and preserved, but the startup console messages themselves remain effectively English unless a custom localization layer is introduced.
+
 ## 5. Installer Package Path Not Yet Re-verified
 
 Legacy packaging material is present in `pkg/`, but the current milestone did not yet re-verify the full installer/package workflow on Leopard/PPC.
