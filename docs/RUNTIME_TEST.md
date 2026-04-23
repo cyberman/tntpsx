@@ -218,7 +218,7 @@ This milestone is tagged as:
 
 `leopard-ppc-tuntap-v1`
 
-## Roundtrip Verification
+## 10. Roundtrip Verification
 
 A full installer roundtrip was verified:
 
@@ -233,7 +233,7 @@ Milestone tag:
 
 `leopard-ppc-installer-roundtrip-v1`
 
-## 10. Data-Path Smoke Tests
+## 11. Data-Path Smoke Tests
 
 After build, install, uninstall, reinstall, and namespace verification, a final data-path smoke test was performed for both `tun` and `tap`.
 
@@ -308,6 +308,59 @@ Conclusion:
     
 - the TAP data path is functionally verified on Leopard/PPC
     
+
+## 12. Boot-Cycle Regression Test
+
+A dedicated reboot regression flow was added for the Leopard/PPC recovery line.
+
+Tool:
+
+```sh id="46118"
+./tools/test_boot_cycle.sh prep
+./tools/test_boot_cycle.sh verify
+````
+
+or, for immediate reboot preparation:
+
+```sh
+./tools/test_boot_cycle.sh prep-reboot
+```
+
+### Purpose
+
+The boot-cycle test verifies that `tntpsx` remains operational after an actual restart without requiring manual post-boot recovery steps.
+
+### Post-Boot Verification Scope
+
+The verification phase checks:
+
+- `/Library/StartupItems/tap` exists
+    
+- `/Library/StartupItems/tun` exists
+    
+- `org.tntpsx.tun` is loaded
+    
+- `org.tntpsx.tap` is loaded
+    
+- `/dev/tun0` exists
+    
+- `/dev/tap0` exists
+    
+
+It then reruns:
+
+- `./tools/test_tun.sh`
+    
+- `./tools/test_tap.sh`
+    
+- `./tools/test_reopen_tun.sh 20`
+    
+- `./tools/test_reopen_tap.sh 20`
+    
+
+### Interpretation
+
+A successful boot-cycle test means that the Leopard/PPC recovery line is not only installable and runtime-functional in-session, but also survives a real restart and returns to a verified working state through the intended startup path.
 
 ## Final Runtime Conclusion
 

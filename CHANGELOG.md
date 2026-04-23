@@ -6,6 +6,7 @@
 - Modern repository documentation set in `docs/`
 - Verified Leopard/PPC milestone tag `leopard-ppc-tuntap-v1`
 - Added formal hardening documentation for lifecycle and stress-validation of the Leopard/PPC recovery line
+- Added `tools/test_boot_cycle.sh` for reboot regression validation
 
 ### Changed
 - Cleaned repository handling for legacy Xcode artifacts
@@ -15,6 +16,7 @@
 - Defined `0.1.0` as the current `tntpsx` product version
 - Renamed package output from historical `tuntap_*` naming to `tntpsx_0.1.0.*`
 - Continued aligning installer and package identity with the `tntpsx` product name
+- Extended the hardening process to include explicit boot/reboot regression testing
 
 ### Fixed
 - Leopard/PPC ioctl callback signature mismatch in `tuntap_if_ioctl`
@@ -37,6 +39,8 @@
 - TUN data path verified with an outbound ICMP packet read from `/dev/tun0`
 - TAP data path verified with an ARP broadcast frame read from `/dev/tap0`
 - Full userspace smoke tests verified for both `tun` and `tap` after package reinstall
+- Boot-cycle regression path verified using `tools/test_boot_cycle.sh`
+- post-boot startup-item, kext, device-node, smoke-test, and reopen-test validation completed successfully
 
 ## Verified Milestones
 

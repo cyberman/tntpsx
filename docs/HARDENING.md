@@ -104,7 +104,8 @@ Current hardening-oriented tools include:
 - `test_reopen_tun.sh`
 - `test_reopen_tap.sh`
 - `test_unload_while_open.sh`
-- `test_gauntlet.sh` (when present and maintained)
+- `test_gauntlet.sh`
+- `test_boot_cycle.sh`
 
 These tools are not throwaway helpers. They are part of the validation strategy of the recovery line.
 
@@ -156,6 +157,35 @@ The highest-priority review areas remain:
 - user/kernel boundary handling
 - unload-time safety
 
+### 4. Boot/Reboot validation
+
+A dedicated reboot regression flow is part of the hardening strategy.
+
+The goal is to verify that `tntpsx` survives a real system restart without manual intervention and still provides the expected runtime state afterward.
+
+The repository includes:
+
+- `tools/test_boot_cycle.sh`
+
+This tool supports a two-phase boot-cycle test:
+
+- `prep` or `prep-reboot` before restart
+- `verify` after restart
+
+The boot-cycle verification checks:
+
+- startup items are still present
+- `org.tntpsx.tun` is loaded after boot
+- `org.tntpsx.tap` is loaded after boot
+- `/dev/tun0` exists after boot
+- `/dev/tap0` exists after boot
+- TUN data-path smoke test passes after boot
+- TAP data-path smoke test passes after boot
+- TUN reopen hardening passes after boot
+- TAP reopen hardening passes after boot
+
+This makes reboot validation part of the same material-testing philosophy as the other hardening tools.
+
 ## Non-Goals
 
 Hardening is not the same as feature growth.
@@ -177,4 +207,3 @@ At this stage, the project does not prioritize:
 - conservative interpretation of evidence
 
 This turns the recovery line into a measured infrastructure component rather than a one-off porting success.
-
