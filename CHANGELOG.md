@@ -5,6 +5,7 @@
 ### Added
 - Modern repository documentation set in `docs/`
 - Verified Leopard/PPC milestone tag `leopard-ppc-tuntap-v1`
+- Added formal hardening documentation for lifecycle and stress-validation of the Leopard/PPC recovery line
 
 ### Changed
 - Cleaned repository handling for legacy Xcode artifacts

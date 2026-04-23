@@ -158,6 +158,8 @@ This repository currently documents and preserves:
 - the verified milestone tag `leopard-ppc-tuntap-v1`
     
 
+The recovery line is also validated through a dedicated hardening process. See `docs/HARDENING.md`.
+
 It does **not** yet provide:
 
 - a fully polished installer identity and presentation layer
