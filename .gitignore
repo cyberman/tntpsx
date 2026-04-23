@@ -56,3 +56,30 @@ dkms.conf
 
 build/
 *.pbxuser
+
+# macOS / Finder
+.DS_Store
+
+# Xcode per-user state
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+
+# Local git archive junk
+.git/
+
+# Top-level build outputs
+/*.kext
+/*.pkg
+/*.tar.gz
+
+# Built helper binaries in source tree
+/src/tap/tap
+/src/tun/tun
+
+# Local test logs
+/tools/*.log
+
+# Optional: local boot-cycle state
+/var/tmp/tntpsx_boot_cycle.state
