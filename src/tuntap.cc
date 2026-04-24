@@ -212,20 +212,25 @@ tuntap_mbuf_queue::~tuntap_mbuf_queue()
 bool
 tuntap_mbuf_queue::enqueue(mbuf_t mb)
 {
+	if (mb == NULL)
+			return false;
+
 	if (size == QUEUE_SIZE)
-		return false;
+			return false;
 
 	mbuf_setnextpkt(mb, NULL);
 
 	if (head == NULL)
-		head = tail = mb;
+			head = tail = mb;
 	else {
 		mbuf_setnextpkt(tail, mb);
 		tail = mb;
 	}
+
 	size++;
 
 	return true;
+
 }
 
 mbuf_t
@@ -235,7 +240,7 @@ tuntap_mbuf_queue::dequeue()
 
 	/* check wether there is a packet in the queue */
 	if (head == NULL)
-		return NULL;
+			return NULL;
 
 	/* fetch it */
 	ret = head;
@@ -243,7 +248,11 @@ tuntap_mbuf_queue::dequeue()
 	mbuf_setnextpkt(ret, NULL);
 	size--;
 
+	if (head == NULL)
+			tail = NULL;
+
 	return ret;
+
 }
 
 void
