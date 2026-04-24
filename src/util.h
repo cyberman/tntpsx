@@ -32,13 +32,26 @@
 
 extern "C" {
 
-/* In Darwin 8 (OS X Tiger) there is a problem with struct selinfo. It was made `private' to the
- * kernel, so its definition is not available from the headers in Kernel.framework. However, we need
- * to declare something :-(
- */
-struct selinfo {
-	char data[128];	/* should be enough... */
-};
+	/* Darwin 8 / Leopard-PPC compatibility shim for struct selinfo.
+	*
+
+	* The public Kernel.framework headers on the target line do not provide a usable
+	* public definition here, but tuntap still needs storage compatible enough for
+	* select()/selrecord-style kernel interaction.
+	*
+	* This placeholder must remain isolated to this compatibility header.
+	* It is not intended as a general-purpose public definition of selinfo.
+	*
+	* If a proper public kernel definition becomes available for the supported target,
+	* this shim should be removed in favor of the real system declaration.
+  */
+  #ifndef TUNTAP_SELINFO_COMPAT_SIZE
+  #define TUNTAP_SELINFO_COMPAT_SIZE 128
+  #endif
+
+	struct selinfo {
+		char data[TUNTAP_SELINFO_COMPAT_SIZE];
+	};
 
 } /* extern "C" */
 
