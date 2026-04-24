@@ -46,8 +46,10 @@ static kern_return_t tun_module_start(struct kmod_info *ki, void *data)
 	mem_initialize(TUN_FAMILY_NAME);
 
 	/* initialize locking */
-	if (!tt_lock::initialize())
+	if (!tt_lock::initialize()) {
+		mem_shutdown();
 		return KMOD_RETURN_FAILURE;
+	}
 
 	/* create a tun manager that will handle the rest */
 	mgr = new tun_manager();
@@ -58,11 +60,14 @@ static kern_return_t tun_module_start(struct kmod_info *ki, void *data)
 
 		delete mgr;
 		mgr = NULL;
-		/* clean up locking */
-		tt_lock::shutdown();
 	}
 
+	/* clean up on failure */
+	tt_lock::shutdown();
+	mem_shutdown();
+
 	return KMOD_RETURN_FAILURE;
+
 }
 
 /*

@@ -46,23 +46,29 @@ static kern_return_t tap_module_start(struct kmod_info *ki, void *data)
 	mem_initialize(TAP_FAMILY_NAME);
 
 	/* initialize locking */
-	if (!tt_lock::initialize())
+	if (!tt_lock::initialize()) {
+		mem_shutdown();
 		return KMOD_RETURN_FAILURE;
+	}
 
 	/* create a tap manager that will handle the rest */
 	mgr = new tap_manager();
 
-	if (mgr != NULL) {
+	if (mgr != NULL)
+	{
 		if (mgr->initialize(TAP_IF_COUNT, (char *) TAP_FAMILY_NAME))
 			return KMOD_RETURN_SUCCESS;
 
 		delete mgr;
 		mgr = NULL;
-		/* clean up locking */
-		tt_lock::shutdown();
 	}
 
+	/* clean up on failure */
+	tt_lock::shutdown();
+	mem_shutdown();
+
 	return KMOD_RETURN_FAILURE;
+
 }
 
 /*
