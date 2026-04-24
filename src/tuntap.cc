@@ -372,7 +372,11 @@ tuntap_interface::unregister_interface()
 	dprintf("unregistering network interface\n");
 
 	if (ifp != NULL) {
+		unsigned int detach_wait_rounds = 0;
+
+		detach_lock.lock();
 		interface_detached = false;
+		detach_lock.unlock();
 
 		/* detach interface */
 		err = ifnet_detach(ifp);
@@ -384,8 +388,16 @@ tuntap_interface::unregister_interface()
 
 		/* Wait until the interface has completely been detached. */
 		detach_lock.lock();
-		while (!interface_detached)
-			detach_lock.sleep(&interface_detached);
+		while (!interface_detached) {
+			detach_lock.sleep(&interface_detached, 1000000);
+			detach_wait_rounds++;
+
+			if (!interface_detached && (detach_wait_rounds % 5) == 0) {
+				log(LOG_WARNING,
+						"tuntap: still waiting for detach of interface %s%d\n",
+						family_name, unit);
+			}
+		}
 		detach_lock.unlock();
 
 		dprintf("interface detached\n");
