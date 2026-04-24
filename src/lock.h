@@ -68,6 +68,8 @@ class tt_mutex : public tt_lock {
 	private:
 		/* underlying darwin lock */
 		lck_rw_t *lck;
+		/* lock group used when the lock was allocated */
+		lck_grp_t *grp;
 
 	public:
 		tt_mutex();
