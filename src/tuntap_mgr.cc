@@ -92,6 +92,7 @@ tuntap_manager::initialize(unsigned int count, char *family)
 	this->count = count;
 	this->family = family;
 	this->tuntaps = NULL;
+	this->dev_major = -1;
 
 	if (!statics_initialized)
 		initialize_statics();
@@ -111,6 +112,13 @@ tuntap_manager::initialize(unsigned int count, char *family)
 	if (tuntaps == NULL)
 	{
 		log(LOG_ERR, "%s: no memory!\n", family);
+
+		if (cdevsw_remove(dev_major, &mgr_cdevsw) == -1) {
+			log(LOG_WARNING, "%s: could not remove character device switch during rollback.\n",
+					family);
+		}
+
+		dev_major = -1;
 		return false;
 	}
 
@@ -119,29 +127,19 @@ tuntap_manager::initialize(unsigned int count, char *family)
 	/* Create the interfaces. This will only add the character devices. The network devices will
 	 * be created upon open()ing the corresponding character devices.
 	 */
-	for (int i = 0; i < (int) count; i++)
+	for (unsigned int i = 0; i < count; i++)
 	{
 		tuntaps[i] = create_interface();
 
-		if (tuntaps[i] != NULL)
-		{
-			if (tuntaps[i]->initialize(dev_major, i))
-			{
-				continue;
-			}
-
-			/* error here. current interface needs to be shut down */
-			i++;
+		if (tuntaps[i] == NULL) {
+			log(LOG_ERR, "%s: could not create interface instance %u.\n", family, i);
+			goto rollback;
 		}
 
-		/* something went wrong. clean up. */
-		while (--i >= 0)
-		{
-			tuntaps[i]->shutdown();
-			delete  tuntaps[i];
+		if (!tuntaps[i]->initialize(dev_major, i)) {
+			log(LOG_ERR, "%s: could not initialize interface instance %u.\n", family, i);
+			goto rollback;
 		}
-
-		return false;
 	}
 
 	/* register the new family in the mgr switch */
@@ -151,6 +149,28 @@ tuntap_manager::initialize(unsigned int count, char *family)
 			family, TUNTAP_VERSION);
 
 	return true;
+
+rollback:
+	for (unsigned int i = 0; i < count; i++) {
+		if (tuntaps[i] != NULL) {
+			tuntaps[i]->shutdown();
+			delete tuntaps[i];
+			tuntaps[i] = NULL;
+		}
+	}
+
+	mem_free(tuntaps, count * sizeof(tuntap_interface *));
+	tuntaps = NULL;
+
+	if (dev_major != -1) {
+		if (cdevsw_remove(dev_major, &mgr_cdevsw) == -1) {
+			log(LOG_WARNING, "%s: could not remove character device switch during rollback.\n",
+					family);
+		}
+		dev_major = -1;
+	}
+
+	return false;
 }
 
 bool
