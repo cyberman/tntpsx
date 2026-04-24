@@ -135,38 +135,63 @@ tt_mutex::wakeup(void *cond)
 
 /* tt_gate */
 tt_gate::tt_gate()
-	: ticket_number(0),
-	population(0)
+	: attempt_counter(0),
+	  population(0),
+	  closed(false)
 {
 }
 
-void
+bool
 tt_gate::enter()
 {
-	/* just try to grab the lock, increase the ticket number and the population */
 	auto_lock l(&slock);
-	ticket_number++;
+
+	attempt_counter++;
+
+	if (closed) {
+		slock.wakeup(this);
+		return false;
+	}
+
 	population++;
+	slock.wakeup(this);
+
+	return true;
 }
 
 void
 tt_gate::exit()
 {
 	auto_lock l(&slock);
-	ticket_number--;
-	population--;
+
+	if (population > 0)
+		population--;
+
+	slock.wakeup(this);
 }
 
 bool
-tt_gate::is_anyone_in()
+tt_gate::is_anyone_in_locked()
 {
 	return population != 0;
 }
 
 unsigned int
-tt_gate::get_ticket_number()
+tt_gate::get_attempt_counter_locked()
 {
-	return ticket_number;
+	return attempt_counter;
+}
+
+void
+tt_gate::begin_shutdown_locked()
+{
+	closed = true;
+}
+
+void
+tt_gate::end_shutdown_locked()
+{
+	closed = false;
 }
 
 void

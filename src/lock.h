@@ -88,29 +88,47 @@ class tt_mutex : public tt_lock {
  * gate assigns ticket numbers to everyone that passes the gate, so you can check whether more
  * threads came through. See tuntap_mgr::shutdown() for how we use that stuff.
  */
+
+/* A gate used for character-device service calls.
+ *
+ * enter() now returns false once shutdown has begun.
+ *
+ * We track:
+ * - how many service calls are currently inside the gate
+ * - how many service-call entry attempts happened in total
+ *
+ * The attempt counter is used during shutdown to give racing callers a chance
+ * to wake up, notice that the gate is closed, and fail cleanly.
+ *
+ * The *_locked() methods are intended to be used while the gate lock is
+ * already held through lock()/unlock() or auto_lock.
+ */
 class tt_gate : public tt_lock {
 
 	private:
 		/* synchronization lock */
 		tt_mutex slock;
-		/* ticket number */
-		unsigned int ticket_number;
-		/* count of threads that are in */
+		/* total number of enter() attempts */
+		unsigned int attempt_counter;
+		/* count of threads currently inside */
 		unsigned int population;
+		/* gate is closed during shutdown */
+		bool closed;
 
 	public:
 		/* construct a new gate */
 		tt_gate();
 
-		/* enter - pass the gate */
-		void enter();
-		/* exit - pass the gate */
+		/* enter - returns false if shutdown has closed the gate */
+		bool enter();
+		/* exit - leave the gate */
 		void exit();
 
-		/* check whether anyone is in */
-		bool is_anyone_in();
-		/* gets the next ticket number */
-		unsigned int get_ticket_number();
+		/* methods below expect the gate lock to be held already */
+		bool is_anyone_in_locked();
+		unsigned int get_attempt_counter_locked();
+		void begin_shutdown_locked();
+		void end_shutdown_locked();
 
 		/* lock the gate */
 		void lock();

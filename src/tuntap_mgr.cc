@@ -178,23 +178,37 @@ tuntap_manager::shutdown()
 {
 	bool ok = true;
 
-	/* we halt the whole thing while we check whether we can shutdown */
+	/* Halt cdev service entry while we inspect and possibly tear down. */
 	auto_lock l(&cdev_gate);
 
-	/* anyone in? */
-	if (cdev_gate.is_anyone_in()) {
-		dprintf("tuntap_mgr: won't shutdown, threads still behind the gate.");
+	cdev_gate.begin_shutdown_locked();
+
+	/* If anyone is still inside a cdev service function, refuse unload. */
+	if (cdev_gate.is_anyone_in_locked()) {
 		ok = false;
+		cdev_gate.end_shutdown_locked();
 	} else {
-		/* query the interfaces to see if shutting down is ok */
+		/* Query the interfaces to see if shutting down is ok. */
 		if (tuntaps != NULL) {
 			for (unsigned int i = 0; i < count; i++) {
 				if (tuntaps[i] != NULL)
 					ok &= tuntaps[i]->idle();
 			}
+		}
 
-			/* if yes, do it now */
-			if (ok) {
+		if (ok) {
+			/* Unregister the character device switch first. */
+			if (dev_major != -1 && cdevsw_remove(dev_major, &mgr_cdevsw) == -1) {
+				log(LOG_WARNING,
+					"%s: character device switch got lost. strange.\n", family);
+			}
+
+			if (dev_major != -1)
+				mgr_map[dev_major] = NULL;
+			dev_major = -1;
+
+			/* Shut down and destroy all interface objects. */
+			if (tuntaps != NULL) {
 				for (unsigned int i = 0; i < count; i++) {
 					if (tuntaps[i] != NULL) {
 						tuntaps[i]->shutdown();
@@ -203,37 +217,30 @@ tuntap_manager::shutdown()
 					}
 				}
 			}
+
+			/* Give racing callers blocked on the gate a chance to wake,
+			 * notice that shutdown is active, and fail cleanly.
+			 */
+			unsigned int old_attempt;
+			do {
+				old_attempt = cdev_gate.get_attempt_counter_locked();
+
+				dprintf("tuntap_manager: draining blocked cdev callers.\n");
+
+				/* wait up to one second */
+				cdev_gate.sleep(&cdev_gate, 1000000);
+
+			} while (cdev_gate.get_attempt_counter_locked() != old_attempt);
+
+			/* Gate stays closed on successful shutdown. */
+		} else {
+			cdev_gate.end_shutdown_locked();
 		}
 	}
 
-	/* unregister the character device switch */
-	if (ok) {
-		if (dev_major != -1 && cdevsw_remove(dev_major, &mgr_cdevsw) == -1) {
-			log(LOG_WARNING,
-				"%s: character device switch got lost. strange.\n", family);
-		}
-		mgr_map[dev_major] = NULL;
-		dev_major = -1;
-
-		/* at this point there is still a chance that some thread hangs at the cdev_gate in
-		 * one of the cdev service functions. I can't imagine any way that would aviod this.
-		 * So lets unblock the gate such that they fail.
-		 */
-		unsigned int old_number;
-		do {
-			old_number = cdev_gate.get_ticket_number();
-
-			dprintf("tuntap_manager: waiting for other threads to give up.\n");
-
-			/* wait one second */
-			cdev_gate.sleep(&cdev_gate, 1000000);
-
-		} while (cdev_gate.get_ticket_number() != old_number);
-
-		/* I hope it is safe to unload now. */
-
-	} else {
-		log(LOG_WARNING, "%s: won't unload, at least one interface is busy.\n", family);
+	if (!ok) {
+		log(LOG_WARNING, "%s: won't unload, at least one interface is busy.\n",
+				family);
 	}
 
 	dprintf("tuntap manager: shutdown %s\n", ok ? "ok" : "failed");
@@ -300,7 +307,8 @@ tuntap_manager::do_cdev_open(dev_t dev, int flags, int devtype, proc_t p)
 	int dmin = minor(dev);
 	int error = ENOENT;
 
-	cdev_gate.enter();
+		if (!cdev_gate.enter())
+				return EBUSY;;
 
 	if (dmin < (int) count && dmin >= 0 && tuntaps[dmin] != NULL)
 		error = tuntaps[dmin]->cdev_open(flags, devtype, p);
@@ -316,7 +324,8 @@ tuntap_manager::do_cdev_close(dev_t dev, int flags, int devtype, proc_t p)
 	int dmin = minor(dev);
 	int error = EBADF;
 
-	cdev_gate.enter();
+		if (!cdev_gate.enter())
+				return EBUSY;
 
 	if (dmin < (int) count && dmin >= 0 && tuntaps[dmin] != NULL)
 		error = tuntaps[dmin]->cdev_close(flags, devtype, p);
@@ -332,7 +341,8 @@ tuntap_manager::do_cdev_read(dev_t dev, uio_t uio, int ioflag)
 	int dmin = minor(dev);
 	int error = EBADF;
 
-	cdev_gate.enter();
+		if (!cdev_gate.enter())
+				return EBUSY;
 
 	if (dmin < (int) count && dmin >= 0 && tuntaps[dmin] != NULL)
 		error = tuntaps[dmin]->cdev_read(uio, ioflag);
@@ -348,7 +358,8 @@ tuntap_manager::do_cdev_write(dev_t dev, uio_t uio, int ioflag)
 	int dmin = minor(dev);
 	int error = EBADF;
 
-	cdev_gate.enter();
+		if (!cdev_gate.enter())
+				return EBUSY;
 
 	if (dmin < (int) count && dmin >= 0 && tuntaps[dmin] != NULL)
 		error = tuntaps[dmin]->cdev_write(uio, ioflag);
@@ -364,7 +375,8 @@ tuntap_manager::do_cdev_ioctl(dev_t dev, u_long cmd, caddr_t data, int fflag, pr
 	int dmin = minor(dev);
 	int error = EBADF;
 
-	cdev_gate.enter();
+		if (!cdev_gate.enter())
+				return EBUSY;
 
 	if (dmin < (int) count && dmin >= 0 && tuntaps[dmin] != NULL)
 		error = tuntaps[dmin]->cdev_ioctl(cmd, data, fflag, p);
@@ -380,7 +392,8 @@ tuntap_manager::do_cdev_select(dev_t dev, int which, void *wql, proc_t p)
 	int dmin = minor(dev);
 	int error = EBADF;
 
-	cdev_gate.enter();
+		if (!cdev_gate.enter())
+				return EBUSY;
 
 	if (dmin < (int) count && dmin >= 0 && tuntaps[dmin] != NULL)
 		error = tuntaps[dmin]->cdev_select(which, wql, p);
