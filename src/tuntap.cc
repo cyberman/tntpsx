@@ -469,53 +469,72 @@ tuntap_interface::cleanup_interface()
 	errno_t err;
 	ifaddr_t *addrs;
 	ifaddr_t *a;
-	struct ifreq ifr;
-	socket_t sock;
 
 	/* mark the interface down */
 	ifnet_set_flags(ifp, 0, IFF_UP | IFF_RUNNING);
 
-	/* Unregister all interface addresses. This works around a deficiency in the Darwin kernel.
-	 * If we don't remove all IP addresses that are attached to the interface it can happen that
-	 * the IP code fails to clean them up itself. When the interface is recycled, the IP code
-	 * might then think some addresses are still attached to the interface...
+	/* Unregister all interface addresses. This works around a deficiency in
+	 * the Darwin kernel. If we don't remove all IP addresses that are attached
+	 * to the interface it can happen that the IP code fails to clean them up
+	 * itself. When the interface is recycled, the IP code might then think
+	 * some addresses are still attached to the interface.
 	 */
-
 	err = ifnet_get_address_list(ifp, &addrs);
-	if (!err) {
+	if (err) {
+		log(LOG_WARNING, "tuntap: could not get address list for cleanup: %d\n", err);
+		return;
+	}
 
-		/* Execute a SIOCDIFADDR ioctl for each address. For technical reasons, we can only
-		 * do that with a socket of the appropriate family. So try to create a dummy socket.
-		 * I know this is a little expensive, but better than crashing...
-		 *
-		 * This really sucks.
-		 */
-		for (a = addrs; *a != NULL; a++) {
-			/* initialize the request parameters */
-			snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s%d",
+	for (a = addrs; *a != NULL; a++) {
+		struct ifreq ifr;
+		socket_t sock;
+		sa_family_t af;
+
+		bzero(&ifr, sizeof(ifr));
+		sock = NULL;
+
+		/* initialize the request parameters */
+		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s%d",
 				ifnet_name(ifp), ifnet_unit(ifp));
-			ifaddr_address(*a, &(ifr.ifr_addr), sizeof(ifr.ifr_addr));
+		ifaddr_address(*a, &(ifr.ifr_addr), sizeof(ifr.ifr_addr));
 
-			dprintf("trying to delete address of family %d\n", ifr.ifr_addr.sa_family);
+		af = ifr.ifr_addr.sa_family;
 
-			/* create the dummy socket. */
-			err = sock_socket(ifr.ifr_addr.sa_family, SOCK_RAW, 0, NULL, NULL, &sock);
-			if (err)
-				/* failed to create the socket? Ignore this address... */
-				continue;
-
-			/* issue the ioctl */
-			err = sock_ioctl(sock, SIOCDIFADDR, &ifr);
-
-			dprintf("ifnet_ioctl returned %d\n", err);
-
-			/* get rid of the socket */
-			sock_close(sock);
+		/* Only try to remove address families we can reasonably clean up
+		 * through SIOCDIFADDR on a dummy socket.
+		 */
+		if (af != AF_INET
+#ifdef AF_INET6
+				&& af != AF_INET6
+#endif
+		) {
+			dprintf("tuntap: skipping cleanup of address family %d\n", af);
+			continue;
 		}
 
-		/* release the address list */
-		ifnet_free_address_list(addrs);
+		dprintf("tuntap: deleting address of family %d\n", af);
+
+		/* Create the dummy socket. */
+		err = sock_socket(af, SOCK_RAW, 0, NULL, NULL, &sock);
+		if (err) {
+			log(LOG_WARNING,
+					"tuntap: could not create cleanup socket for family %d: %d\n",
+					af, err);
+			continue;
+		}
+
+		/* issue the ioctl */
+		err = sock_ioctl(sock, SIOCDIFADDR, &ifr);
+		if (err) {
+			dprintf("tuntap: SIOCDIFADDR for family %d returned %d\n", af, err);
+		}
+
+		/* get rid of the socket */
+		sock_close(sock);
 	}
+
+	/* release the address list */
+	ifnet_free_address_list(addrs);
 }
 
 bool
