@@ -42,35 +42,42 @@ extern "C" {
 #endif
 
 static int inited = 0;
-static OSMallocTag tag;
+static OSMallocTag tag = 0;
 
 void
-mem_initialize(const char* name) {
-	
+mem_initialize(const char* name)
+{
 	if (!inited) {
 		tag = OSMalloc_Tagalloc(name, OSMT_DEFAULT);
-		inited = 1;
+		if (tag != 0)
+			inited = 1;
 	}
 }
 
 void
-mem_shutdown() {
-	
-	if (inited) {
+mem_shutdown()
+{
+	if (inited && tag != 0) {
 		OSMalloc_Tagfree(tag);
+		tag = 0;
 		inited = 0;
 	}
 }
 
 void *
-mem_alloc(uint32_t size) {
+mem_alloc(uint32_t size)
+{
+	if (tag == 0)
+		return 0;
 
 	return OSMalloc(size, tag);
 }
 
 void
-mem_free(void *addr, uint32_t size) {
+mem_free(void *addr, uint32_t size)
+{
+	if (addr == 0 || tag == 0)
+		return;
 
 	OSFree(addr, size, tag);
 }
-
