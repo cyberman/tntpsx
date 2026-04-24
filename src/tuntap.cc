@@ -896,16 +896,9 @@ tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 			if (ifr == NULL)
 				return EINVAL;
 
-			log(LOG_INFO,
-					"SIOCSIFFLAGS: requested flags=0x%x, want_up=%d\n",
-					ifr->ifr_flags,
-					(ifr->ifr_flags & IFF_UP) ? 1 : 0);
-
 			if (ifr->ifr_flags & IFF_UP) {
-				log(LOG_INFO, "SIOCSIFFLAGS: setting IFF_UP\n");
 				ifnet_set_flags(ifp, IFF_UP, IFF_UP);
 			} else {
-				log(LOG_INFO, "SIOCSIFFLAGS: clearing IFF_UP\n");
 				ifnet_set_flags(ifp, 0, IFF_UP);
 			}
 
