@@ -76,16 +76,18 @@ tt_lock::shutdown()
 
 /* tt_mutex */
 tt_mutex::tt_mutex()
+: lck(NULL)
 {
-	/* fail if locking group not initialized */
-	if (tt_lck_grp == NULL)
-		return;
+/* fail if locking group not initialized */
+if (tt_lck_grp == NULL)
+	return;
 
-	/* allocate the lock */
-	lck = lck_rw_alloc_init(tt_lck_grp, NULL);
+/* allocate the lock */
+lck = lck_rw_alloc_init(tt_lck_grp, NULL);
 
-	if (lck == NULL)
-		log(LOG_ERR, "tuntap: could not allocate mutex\n");
+if (lck == NULL)
+	log(LOG_ERR, "tuntap: could not allocate mutex\n");
+
 }
 
 tt_mutex::~tt_mutex()
