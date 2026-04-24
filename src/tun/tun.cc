@@ -105,6 +105,10 @@ tun_interface::shutdown_interface()
 {
 	dprintf("tun: shutting down network interface of %s%d\n", family_name, unit);
 
+		/* bring the interface down before protocol/address teardown */
+	if (ifp != NULL)
+		ifnet_set_flags(ifp, 0, IFF_UP);
+
 	/* detach all protocols */
 	for (unsigned int i = 0; i < MAX_ATTACHED_PROTOS; i++) {
 		if (attached_protos[i].used) {
