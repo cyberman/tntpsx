@@ -6,6 +6,19 @@ This document records the runtime verification path used for the Leopard/PPC mil
 
 The goal is to prove that the built kernel extensions are not just compilable, but actually usable.
 
+## Historical Scope Note
+
+Sections 1 through 10 record the original manual Leopard/PPC verification path used during the early recovery phase.
+
+They are preserved as historical validation evidence.
+
+The current recovery line should be interpreted primarily through:
+
+- the installer roundtrip verification
+- the data-path smoke tests
+- the boot-cycle regression flow
+- the calibrated reopen hardening tests
+
 ## Tested Platform
 
 - Mac OS X Leopard 10.5.8
@@ -361,6 +374,30 @@ It then reruns:
 ### Interpretation
 
 A successful boot-cycle test means that the Leopard/PPC recovery line is not only installable and runtime-functional in-session, but also survives a real restart and returns to a verified working state through the intended startup path.
+
+### TAP reopen calibration result
+
+The original binary pass/fail interpretation of `tap` reopen behavior proved too coarse for rapid reopen churn.
+
+A refined 3-stage classification was introduced:
+
+- immediate UP
+- short delay UP
+- late delay UP
+- hard failure only if `UP` is still absent after the full polling window
+
+Observed interpretation in the calibrated runs:
+
+- normal calibrated TAP reopen runs no longer reproduced hard failure
+- isolated TAP reopen testing without `mDNSResponder` likewise no longer reproduced hard failure
+- rare short-delay and occasional late-delay visible `UP` transitions can still occur under rapid reopen churn
+
+This means that earlier apparent TAP reopen "hard failures" were, in relevant cases, artifacts of too-coarse timing classification rather than confirmed hard runtime breakage.
+
+The current verified interpretation is therefore:
+
+- TAP reopen behavior is timing-sensitive under stress
+- TAP reopen behavior is not currently classified as a reproduced hard stability failure in the recovery line
 
 ## Final Runtime Conclusion
 

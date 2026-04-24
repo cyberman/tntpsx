@@ -88,10 +88,16 @@ At present, the project shows:
 - strong unload protection behavior
 - verified userspace-visible data-path behavior
 - no reproduced hard stability failure in the active hardening tests so far
+- `tun` reopen hardening shows rare timing-sensitive visible `UP` delays, but no reproduced hard failure
+- `tap` reopen hardening no longer reproduces hard failure in the calibrated 3-stage test flow
+- `tap` reopen behavior can still show rare short or late visible `UP` transitions under rapid reopen churn
+- isolated `tap` testing without `mDNSResponder` confirms the absence of reproduced hard failures in the current recovery line
 
-A rare short timing-sensitive `tun` state delay has been observed, but it has not reproduced as a hard failure.
+The current interpretation is therefore:
 
-This is currently treated as a minor timing characteristic, not as a confirmed stability defect.
+- `tun` shows a minor timing-sensitive state characteristic
+- `tap` shows a minor timing-sensitive reopen characteristic
+- neither behavior is currently treated as a confirmed stability defect in the verified recovery line
 
 ## Hardening Test Sets
 
@@ -103,6 +109,7 @@ Current hardening-oriented tools include:
 - `test_tap.sh`
 - `test_reopen_tun.sh`
 - `test_reopen_tap.sh`
+- `test_reopen_tap_isolated.sh`
 - `test_unload_while_open.sh`
 - `test_gauntlet.sh`
 - `test_boot_cycle.sh`
@@ -137,28 +144,6 @@ The next recommended hardening targets are:
 
 ### 1. Boot/Reboot validation
 
-- verify automatic availability after reboot
-- verify startup item behavior after multiple cold or warm boots
-- rerun data-path smoke tests after reboot
-
-### 2. Longer-duration stress
-
-- repeated data-path traffic over longer sessions
-- repeated lifecycle churn over larger iteration counts
-- watch for degradation, leaks, or state drift
-
-### 3. Code review focus areas
-
-The highest-priority review areas remain:
-
-- locking / sleep / wakeup behavior
-- error-path cleanup symmetry
-- queueing and object lifetime
-- user/kernel boundary handling
-- unload-time safety
-
-### 4. Boot/Reboot validation
-
 A dedicated reboot regression flow is part of the hardening strategy.
 
 The goal is to verify that `tntpsx` survives a real system restart without manual intervention and still provides the expected runtime state afterward.
@@ -185,6 +170,22 @@ The boot-cycle verification checks:
 - TAP reopen hardening passes after boot
 
 This makes reboot validation part of the same material-testing philosophy as the other hardening tools.
+
+### 2. Longer-duration stress
+
+- repeated data-path traffic over longer sessions
+- repeated lifecycle churn over larger iteration counts
+- watch for degradation, leaks, or state drift
+
+### 3. Code review focus areas
+
+The highest-priority review areas remain:
+
+- locking / sleep / wakeup behavior
+- error-path cleanup symmetry
+- queueing and object lifetime
+- user/kernel boundary handling
+- unload-time safety
 
 ## Non-Goals
 

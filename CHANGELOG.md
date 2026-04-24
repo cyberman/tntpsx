@@ -17,6 +17,9 @@
 - Renamed package output from historical `tuntap_*` naming to `tntpsx_0.1.0.*`
 - Continued aligning installer and package identity with the `tntpsx` product name
 - Extended the hardening process to include explicit boot/reboot regression testing
+- Refined TAP reopen hardening tests to distinguish immediate, short-delay, and late-delay UP transitions
+- Added isolated TAP reopen testing without `mDNSResponder`
+- Reclassified previously observed TAP reopen "hard failures" as timing-sensitive state transitions where appropriate
 
 ### Fixed
 - Leopard/PPC ioctl callback signature mismatch in `tuntap_if_ioctl`
@@ -41,6 +44,9 @@
 - Full userspace smoke tests verified for both `tun` and `tap` after package reinstall
 - Boot-cycle regression path verified using `tools/test_boot_cycle.sh`
 - post-boot startup-item, kext, device-node, smoke-test, and reopen-test validation completed successfully
+- calibrated TAP reopen hardening no longer reproduces hard failure in the current verified runs
+- isolated TAP reopen hardening without `mDNSResponder` no longer reproduces hard failure in the current verified runs
+- TAP reopen hardening now distinguishes immediate, short-delay, and late-delay visible `UP` transitions
 
 ## Verified Milestones
 
