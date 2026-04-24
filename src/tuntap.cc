@@ -890,7 +890,21 @@ tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 			}
 
 		case SIOCSIFFLAGS:
+		{
+			struct ifreq *ifr = (struct ifreq *) arg;
+
+			if (ifr == NULL)
+				return EINVAL;
+
+			if (ifr->ifr_flags & IFF_UP)
+			{
+				ifnet_set_flags(ifp, IFF_UP, IFF_UP);
+			} else {
+			ifnet_set_flags(ifp, 0, IFF_UP);
+			}
+
 			return 0;
+		}
 
 		case SIOCGIFSTATUS:
 			{
