@@ -119,7 +119,15 @@ tap_interface::initialize_interface()
 	/* set header length */
 	ifnet_set_hdrlen(ifp, sizeof(struct ether_header));
 	/* add the broadcast flag */
-	ifnet_set_flags(ifp, IFF_BROADCAST, IFF_BROADCAST);
+	err = ifnet_set_flags(ifp, IFF_BROADCAST, IFF_BROADCAST);
+	if (err) {
+			log(LOG_ERR, "tap: could not set broadcast flag for %s%d: %d\n",
+							TAP_FAMILY_NAME, (int) unit, err);
+			ifnet_detach(ifp);
+			ifnet_release(ifp);
+			ifp = NULL;
+			return EIO;
+	}
 
 	/* we must call bpfattach(). Otherwise we deadlock BPF while unloading. Seems to be a bug in
 	 * the kernel, see bpfdetach() in net/bpf.c, it will return without releasing the lock if

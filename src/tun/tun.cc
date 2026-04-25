@@ -78,6 +78,7 @@ tun_interface::shutdown()
 int
 tun_interface::initialize_interface()
 {
+	errno_t err;
 	prepend_af = false;
 
 	/* register interface */
@@ -89,7 +90,15 @@ tun_interface::initialize_interface()
 	/* set header length */
 	ifnet_set_hdrlen(ifp, 0);
 	/* add the pointopoint flag */
-	ifnet_set_flags(ifp, IFF_POINTOPOINT, IFF_POINTOPOINT);
+	err = ifnet_set_flags(ifp, IFF_POINTOPOINT, IFF_POINTOPOINT);
+	if (err) {
+			log(LOG_ERR, "tun: could not set point-to-point flag for %s%d: %d\n",
+							family_name, (int) unit, err);
+			ifnet_detach(ifp);
+			ifnet_release(ifp);
+			ifp = NULL;
+			return EIO;
+	}
 
 	/* we must call bpfattach(). Otherwise we deadlock BPF while unloading. Seems to be a bug in
 	 * the kernel, see bpfdetach() in net/bpf.c, it will return without releasing the lock if
