@@ -368,12 +368,20 @@ tuntap_interface::register_interface(const struct sockaddr_dl* lladdr, void *bca
 	dprintf("setting interface flags\n");
 
 	/* set interface flags */
-	ifnet_set_flags(ifp,
-			IFF_RUNNING | IFF_MULTICAST | IFF_SIMPLEX,
-			IFF_RUNNING | IFF_MULTICAST | IFF_SIMPLEX);
+	err = ifnet_set_flags(ifp,
+					IFF_RUNNING | IFF_MULTICAST | IFF_SIMPLEX,
+					IFF_RUNNING | IFF_MULTICAST | IFF_SIMPLEX);
+	if (err) {
+			log(LOG_ERR, "tuntap: could not set interface flags for %s%d: %d\n",
+							family_name, (int) unit, err);
+			ifnet_detach(ifp);
+			ifnet_release(ifp);
+			ifp = NULL;
+			return false;
+	}
 
 	dprintf("flags: %x\n", ifnet_flags(ifp));
-	
+
 	return true;
 }
 
