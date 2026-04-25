@@ -47,6 +47,7 @@
 - calibrated TAP reopen hardening no longer reproduces hard failure in the current verified runs
 - isolated TAP reopen hardening without `mDNSResponder` no longer reproduces hard failure in the current verified runs
 - TAP reopen hardening now distinguishes immediate, short-delay, and late-delay visible `UP` transitions
+* Leopard/PPC boot-cycle regression passed end-to-end, including startup items, kext loading, device nodes, datapath smoke tests, and reopen hardening after reboot
 
 ## Verified Milestones
 
