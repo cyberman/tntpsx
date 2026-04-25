@@ -169,8 +169,18 @@ tap_interface::if_ioctl(u_int32_t cmd, void *arg)
 	switch (cmd) {
 		case SIOCSIFLLADDR:
 			{
+				struct ifreq *ifr = (struct ifreq *) arg;
+				struct sockaddr *ea;
+				errno_t err;
+
+				if (ifr == NULL)
+					return EINVAL;
+
+				if (ifp == NULL)
+					return ENODEV;
+
 				/* set ethernet address */
-				struct sockaddr *ea = &(((struct ifreq *) arg)->ifr_addr);
+				ea = &(ifr->ifr_addr);
 
 				dprintf("tap: SIOCSIFLLADDR family %d len %d\n",
 						ea->sa_family, ea->sa_len);
@@ -180,11 +190,12 @@ tap_interface::if_ioctl(u_int32_t cmd, void *arg)
 					return EINVAL;
 
 				/* ok, copy */
-
-				errno_t err = ifnet_set_lladdr(ifp, ea->sa_data, ETHER_ADDR_LEN);
-				if (err)
-					dprintf("tap: failed to set lladdr on %s%d: %d\n",
-							family_name, unit, err);
+				err = ifnet_set_lladdr(ifp, ea->sa_data, ETHER_ADDR_LEN);
+				if (err) {
+					log(LOG_ERR, "tap: could not set link-layer address for %s%d: %d\n",
+							family_name, (int) unit, err);
+					return err;
+				}
 
 				return 0;
 			}
