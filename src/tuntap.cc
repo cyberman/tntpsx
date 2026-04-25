@@ -319,6 +319,8 @@ tuntap_interface::register_interface(const struct sockaddr_dl* lladdr, void *bca
 	struct ifnet_init_params ip;
 	errno_t err;
 
+	bzero(&ip, sizeof(ip));
+
 	dprintf("register_interface\n");
 
 	/* initialize an initialization info struct */
@@ -366,7 +368,9 @@ tuntap_interface::register_interface(const struct sockaddr_dl* lladdr, void *bca
 	dprintf("setting interface flags\n");
 
 	/* set interface flags */
-	ifnet_set_flags(ifp, IFF_RUNNING | IFF_MULTICAST | IFF_SIMPLEX, (u_int16_t) ~0UL);
+	ifnet_set_flags(ifp,
+			IFF_RUNNING | IFF_MULTICAST | IFF_SIMPLEX,
+			IFF_RUNNING | IFF_MULTICAST | IFF_SIMPLEX);
 
 	dprintf("flags: %x\n", ifnet_flags(ifp));
 	
