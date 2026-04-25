@@ -990,11 +990,20 @@ tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 		case SIOCSIFMTU:
 			{
 				struct ifreq *ifr = (struct ifreq *) arg;
+				errno_t err;
 
 				if (ifr == NULL)
 					return EINVAL;
 
-				ifnet_set_mtu(ifp, ifr->ifr_mtu);
+				if (ifp == NULL)
+					return ENODEV;
+
+				err = ifnet_set_mtu(ifp, ifr->ifr_mtu);
+				if (err) {
+					log(LOG_ERR, "tuntap: could not set MTU for %s%d to %d: %d\n",
+							family_name, (int) unit, ifr->ifr_mtu, err);
+					return err;
+				}
 
 				return 0;
 			}
