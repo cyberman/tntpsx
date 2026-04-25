@@ -944,14 +944,23 @@ tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 		case SIOCSIFFLAGS:
 		{
 			struct ifreq *ifr = (struct ifreq *) arg;
+			errno_t err;
 
 			if (ifr == NULL)
 				return EINVAL;
 
-			if (ifr->ifr_flags & IFF_UP) {
-				ifnet_set_flags(ifp, IFF_UP, IFF_UP);
-			} else {
-				ifnet_set_flags(ifp, 0, IFF_UP);
+			if (ifp == NULL)
+				return ENODEV;
+
+			if (ifr->ifr_flags & IFF_UP)
+				err = ifnet_set_flags(ifp, IFF_UP, IFF_UP);
+			else
+				err = ifnet_set_flags(ifp, 0, IFF_UP);
+
+			if (err) {
+				log(LOG_ERR, "tuntap: could not update IFF_UP for %s%d: %d\n",
+						family_name, (int) unit, err);
+				return err;
 			}
 
 			return 0;
