@@ -79,25 +79,39 @@ int
 tun_interface::initialize_interface()
 {
 	errno_t err;
+
 	prepend_af = false;
 
 	/* register interface */
 	if (!tuntap_interface::register_interface(NULL, NULL, 0))
 		return EIO;
-		
+
+	if (ifp == NULL)
+		return ENODEV;
+
 	/* set mtu */
-	ifnet_set_mtu(ifp, TUN_MTU);
+	err = ifnet_set_mtu(ifp, TUN_MTU);
+	if (err) {
+		log(LOG_ERR, "tun: could not set MTU for %s%d to %d: %d\n",
+				family_name, (int) unit, TUN_MTU, err);
+		ifnet_detach(ifp);
+		ifnet_release(ifp);
+		ifp = NULL;
+		return err;
+	}
+
 	/* set header length */
 	ifnet_set_hdrlen(ifp, 0);
+
 	/* add the pointopoint flag */
 	err = ifnet_set_flags(ifp, IFF_POINTOPOINT, IFF_POINTOPOINT);
 	if (err) {
-			log(LOG_ERR, "tun: could not set point-to-point flag for %s%d: %d\n",
-							family_name, (int) unit, err);
-			ifnet_detach(ifp);
-			ifnet_release(ifp);
-			ifp = NULL;
-			return EIO;
+		log(LOG_ERR, "tun: could not set point-to-point flag for %s%d: %d\n",
+				family_name, (int) unit, err);
+		ifnet_detach(ifp);
+		ifnet_release(ifp);
+		ifp = NULL;
+		return err;
 	}
 
 	/* we must call bpfattach(). Otherwise we deadlock BPF while unloading. Seems to be a bug in

@@ -85,6 +85,10 @@ int
 tap_interface::initialize_interface()
 {
 	struct sockaddr_dl lladdr;
+	errno_t err;
+
+	bzero(&lladdr, sizeof(lladdr));
+
 	lladdr.sdl_len = sizeof(lladdr);
 	lladdr.sdl_family = AF_LINK;
 	lladdr.sdl_alen = ETHER_ADDR_LEN;
@@ -109,24 +113,43 @@ tap_interface::initialize_interface()
 	if (!tuntap_interface::register_interface(&lladdr, ETHER_BROADCAST_ADDR, ETHER_ADDR_LEN))
 		return EIO;
 
+	if (ifp == NULL)
+		return ENODEV;
+
 	/* Set link level address. Yes, we need to do that again. Darwin sucks. */
-	errno_t err = ifnet_set_lladdr(ifp, LLADDR(&lladdr), ETHER_ADDR_LEN);
-	if (err)
-		dprintf("tap: failed to set lladdr on %s%d: %d\n", family_name, unit, err);
+	err = ifnet_set_lladdr(ifp, LLADDR(&lladdr), ETHER_ADDR_LEN);
+	if (err) {
+		log(LOG_ERR, "tap: could not set initial link-layer address for %s%d: %d\n",
+				family_name, (int) unit, err);
+		ifnet_detach(ifp);
+		ifnet_release(ifp);
+		ifp = NULL;
+		return err;
+	}
 
 	/* set mtu */
-	ifnet_set_mtu(ifp, TAP_MTU);
+	err = ifnet_set_mtu(ifp, TAP_MTU);
+	if (err) {
+		log(LOG_ERR, "tap: could not set MTU for %s%d to %d: %d\n",
+				family_name, (int) unit, TAP_MTU, err);
+		ifnet_detach(ifp);
+		ifnet_release(ifp);
+		ifp = NULL;
+		return err;
+	}
+
 	/* set header length */
 	ifnet_set_hdrlen(ifp, sizeof(struct ether_header));
+
 	/* add the broadcast flag */
 	err = ifnet_set_flags(ifp, IFF_BROADCAST, IFF_BROADCAST);
 	if (err) {
-			log(LOG_ERR, "tap: could not set broadcast flag for %s%d: %d\n",
-							TAP_FAMILY_NAME, (int) unit, err);
-			ifnet_detach(ifp);
-			ifnet_release(ifp);
-			ifp = NULL;
-			return EIO;
+		log(LOG_ERR, "tap: could not set broadcast flag for %s%d: %d\n",
+				TAP_FAMILY_NAME, (int) unit, err);
+		ifnet_detach(ifp);
+		ifnet_release(ifp);
+		ifp = NULL;
+		return err;
 	}
 
 	/* we must call bpfattach(). Otherwise we deadlock BPF while unloading. Seems to be a bug in
